@@ -28,6 +28,7 @@ export default function HomePage() {
 
           videoRef.current.onloadedmetadata = () => {
             if (canvasRef.current && videoRef.current) {
+              // Set canvas dimensions to match video dimensions
               canvasRef.current.width = videoRef.current.videoWidth;
               canvasRef.current.height = videoRef.current.videoHeight;
 
@@ -37,29 +38,30 @@ export default function HomePage() {
 
               hands.setOptions({
                 maxNumHands: 1,
-                modelComplexity: 1,
-                minDetectionConfidence: 0.7,
-                minTrackingConfidence: 0.7,
+                modelComplexity: 0, // Set lower complexity for faster processing
+                minDetectionConfidence: 0.8, // Increase confidence threshold
+                minTrackingConfidence: 0.8,  // Increase confidence threshold
               });
 
               hands.onResults((results) => {
                 if (canvasRef.current && videoRef.current) {
                   const canvasCtx = canvasRef.current.getContext('2d');
                   if (canvasCtx) {
+                    // Clear and draw on the canvas
                     canvasCtx.save();
-                    canvasCtx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+                    canvasCtx.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height);
                     canvasCtx.drawImage(
                       videoRef.current,
                       0,
                       0,
-                      canvasRef.current.width,
-                      canvasRef.current.height
+                      canvasRef.current!.width,
+                      canvasRef.current!.height
                     );
 
                     if (results.multiHandLandmarks) {
                       for (const landmarks of results.multiHandLandmarks) {
-                        drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 5 });
-                        drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 2 });
+                        drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 2 });
+                        drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 1 });
                       }
                     }
                     canvasCtx.restore();
@@ -73,8 +75,8 @@ export default function HomePage() {
                     await hands.send({ image: videoRef.current });
                   }
                 },
-                width: 100,
-                height: 100,
+                width: 640,
+                height: 480,
               });
 
               camera.start();
