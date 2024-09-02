@@ -1,8 +1,8 @@
 "use client"; // This directive ensures the file is run on the client-side
 
 import { useState, useRef, useEffect } from 'react';
-import { Hands, HAND_CONNECTIONS } from '@mediapipe/hands';
-import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils';
+import { Hands } from '@mediapipe/hands';
+import { drawLandmarks } from '@mediapipe/drawing_utils';
 import { Camera } from '@mediapipe/camera_utils';
 
 export default function HomePage() {
@@ -49,19 +49,18 @@ export default function HomePage() {
                   if (canvasCtx) {
                     // Clear and draw on the canvas
                     canvasCtx.save();
-                    canvasCtx.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height);
+                    canvasCtx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
                     canvasCtx.drawImage(
                       videoRef.current,
                       0,
                       0,
-                      canvasRef.current!.width,
-                      canvasRef.current!.height
+                      canvasRef.current.width,
+                      canvasRef.current.height
                     );
 
                     if (results.multiHandLandmarks) {
                       for (const landmarks of results.multiHandLandmarks) {
-                        drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 2 });
-                        drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 1 });
+                        drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 1 }); // Draw points on landmarks
                       }
                     }
                     canvasCtx.restore();
