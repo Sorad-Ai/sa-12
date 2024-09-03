@@ -22,8 +22,8 @@ export default function HomePage() {
         // Specify lower resolution here
         const stream = await navigator.mediaDevices.getUserMedia({ 
           video: { 
-            width: { ideal: 1280 }, // Set desired width
-            height: { ideal: 720 }  // Set desired height
+            width: { ideal: 320 }, // Set desired width
+            height: { ideal: 240 }  // Set desired height
           }
         });
         mediaStreamRef.current = stream;
@@ -78,8 +78,8 @@ export default function HomePage() {
                     await hands.send({ image: videoRef.current });
                   }
                 },
-                width: 320, // Match the width you set in getUserMedia
-                height: 240, // Match the height you set in getUserMedia
+                width: 640, // Match the width you set in getUserMedia
+                height: 480, // Match the height you set in getUserMedia
               });
     
               camera.start();
