@@ -19,35 +19,39 @@ export default function HomePage() {
     const startCamera = async () => {
       setIsProcessing(true);
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        // Specify lower resolution here
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { 
+            width: { ideal: 320 }, // Set desired width
+            height: { ideal: 240 }  // Set desired height
+          }
+        });
         mediaStreamRef.current = stream;
-
+    
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           videoRef.current.play();
-
+    
           videoRef.current.onloadedmetadata = () => {
             if (canvasRef.current && videoRef.current) {
-              // Set canvas dimensions to match video dimensions
               canvasRef.current.width = videoRef.current.videoWidth;
               canvasRef.current.height = videoRef.current.videoHeight;
-
+    
               hands = new Hands({
                 locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
               });
-
+    
               hands.setOptions({
                 maxNumHands: 1,
                 modelComplexity: 0, // Set lower complexity for faster processing
                 minDetectionConfidence: 0.8, // Increase confidence threshold
                 minTrackingConfidence: 0.8,  // Increase confidence threshold
               });
-
+    
               hands.onResults((results) => {
                 if (canvasRef.current && videoRef.current) {
                   const canvasCtx = canvasRef.current.getContext('2d');
                   if (canvasCtx) {
-                    // Clear and draw on the canvas
                     canvasCtx.save();
                     canvasCtx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
                     canvasCtx.drawImage(
@@ -57,7 +61,7 @@ export default function HomePage() {
                       canvasRef.current.width,
                       canvasRef.current.height
                     );
-
+    
                     if (results.multiHandLandmarks) {
                       for (const landmarks of results.multiHandLandmarks) {
                         drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 1 }); // Draw points on landmarks
@@ -67,17 +71,17 @@ export default function HomePage() {
                   }
                 }
               });
-
+    
               camera = new Camera(videoRef.current, {
                 onFrame: async () => {
                   if (hands && videoRef.current) {
                     await hands.send({ image: videoRef.current });
                   }
                 },
-                width: 640,
-                height: 480,
+                width: 320, // Match the width you set in getUserMedia
+                height: 240, // Match the height you set in getUserMedia
               });
-
+    
               camera.start();
             }
           };
