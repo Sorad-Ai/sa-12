@@ -43,7 +43,6 @@ export default function HomePage() {
                 minTrackingConfidence: 0.8,  // Increase confidence threshold
               });
 
-              // Inside hands.onResults
               hands.onResults((results) => {
                 if (canvasRef.current && videoRef.current) {
                   const canvasCtx = canvasRef.current.getContext('2d');
@@ -61,18 +60,13 @@ export default function HomePage() {
 
                     if (results.multiHandLandmarks) {
                       for (const landmarks of results.multiHandLandmarks) {
-                        drawLandmarks(canvasCtx, landmarks, {
-                          color: '#FF0000',
-                          lineWidth: 1, // This controls the line width for the landmarks (set it to 0 if you don't want lines)
-                          radius: 1,    // Reduce this value to decrease the radius of the points
-                        });
+                        drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 1, radius: 0.5 }); // Draw points on landmarks
                       }
                     }
                     canvasCtx.restore();
                   }
                 }
               });
-
 
               camera = new Camera(videoRef.current, {
                 onFrame: async () => {
