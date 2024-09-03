@@ -22,8 +22,8 @@ export default function HomePage() {
         // Specify lower resolution here
         const stream = await navigator.mediaDevices.getUserMedia({ 
           video: { 
-            width: { ideal: 320 }, // Set desired width
-            height: { ideal: 240 }  // Set desired height
+            width: { ideal: 640 }, // Set desired width
+            height: { ideal: 480 }  // Set desired height
           }
         });
         mediaStreamRef.current = stream;
