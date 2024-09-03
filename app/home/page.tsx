@@ -60,7 +60,7 @@ export default function HomePage() {
 
                     if (results.multiHandLandmarks) {
                       for (const landmarks of results.multiHandLandmarks) {
-                        drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 1, radius: 0.5 }); // Draw points on landmarks
+                        drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 1, radius: 1 }); // Draw points on landmarks
                       }
                     }
                     canvasCtx.restore();
