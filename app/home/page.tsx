@@ -8,8 +8,6 @@ import { Camera } from '@mediapipe/camera_utils';
 export default function HomePage() {
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showAccuracy, setShowAccuracy] = useState(false); // State for checkbox to show accuracy
-  const [showLandmarksOnly, setShowLandmarksOnly] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
@@ -30,6 +28,7 @@ export default function HomePage() {
 
           videoRef.current.onloadedmetadata = () => {
             if (canvasRef.current && videoRef.current) {
+              // Set canvas dimensions to match video dimensions
               canvasRef.current.width = videoRef.current.videoWidth;
               canvasRef.current.height = videoRef.current.videoHeight;
 
@@ -39,49 +38,30 @@ export default function HomePage() {
 
               hands.setOptions({
                 maxNumHands: 1,
-                modelComplexity: 0,
-                minDetectionConfidence: 10,
-                minTrackingConfidence: 10,
+                modelComplexity: 0, // Set lower complexity for faster processing
+                minDetectionConfidence: 0.8, // Increase confidence threshold
+                minTrackingConfidence: 0.8,  // Increase confidence threshold
               });
 
               hands.onResults((results) => {
-                if (canvasRef.current && videoRef.current && hands) {
+                if (canvasRef.current && videoRef.current) {
                   const canvasCtx = canvasRef.current.getContext('2d');
                   if (canvasCtx) {
+                    // Clear and draw on the canvas
                     canvasCtx.save();
                     canvasCtx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-
-                    if (!showLandmarksOnly) {
-                      canvasCtx.drawImage(
-                        videoRef.current,
-                        0,
-                        0,
-                        canvasRef.current.width,
-                        canvasRef.current.height
-                      );
-                    }
+                    canvasCtx.drawImage(
+                      videoRef.current,
+                      0,
+                      0,
+                      canvasRef.current.width,
+                      canvasRef.current.height
+                    );
 
                     if (results.multiHandLandmarks) {
                       for (const landmarks of results.multiHandLandmarks) {
-                        drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 1, radius: 2 });
+                        drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 1, radius: 1 }); // Draw points on landmarks
                       }
-
-                      // Show accuracy if checkbox is checked
-                      if (showAccuracy && results.multiHandedness && results.multiHandedness[0]) {
-                        const confidenceScore = results.multiHandedness[0].score;
-                        const confidence = confidenceScore !== undefined ? Math.round(confidenceScore * 100) : 0;
-                        const accuracyText = `Confidence: ${confidence}%`;
-                    
-                        canvasCtx.font = "14px 'Roboto', sans-serif"; // Decreased font size
-                        canvasCtx.fillStyle = "red"; // Changed text color to red
-                        canvasCtx.textAlign = "left"; // Align text
-                        canvasCtx.textBaseline = "top"; // Align text baseline
-                    
-                        canvasCtx.fillText(accuracyText, 10, 10); // Position text on the canvas
-                    }
-                    
-
-
                     }
                     canvasCtx.restore();
                   }
@@ -108,12 +88,6 @@ export default function HomePage() {
 
     const stopCamera = () => {
       setIsProcessing(true);
-
-      if (hands) {
-        hands.close();
-        hands = null;
-      }
-
       if (mediaStreamRef.current) {
         mediaStreamRef.current.getTracks().forEach(track => track.stop());
         mediaStreamRef.current = null;
@@ -123,11 +97,13 @@ export default function HomePage() {
         videoRef.current.srcObject = null;
       }
 
-      if (camera) {
-        camera.stop();
-        camera = null;
+      if (hands) {
+        hands.close();
       }
 
+      if (camera) {
+        camera.stop();
+      }
       setIsProcessing(false);
     };
 
@@ -140,7 +116,7 @@ export default function HomePage() {
     return () => {
       stopCamera();
     };
-  }, [isCameraOn, showLandmarksOnly, showAccuracy]);
+  }, [isCameraOn]);
 
   return (
     <div>
@@ -153,27 +129,6 @@ export default function HomePage() {
         />
         Toggle Camera
       </label>
-      <label>
-        <input
-          type="checkbox"
-          checked={showLandmarksOnly}
-          onChange={() => setShowLandmarksOnly(prev => !prev)}
-          disabled={!isCameraOn || isProcessing}
-        />
-        Show Landmarks Only
-      </label>
-
-      <label>
-        <input
-          type="checkbox"
-          checked={showAccuracy}
-          onChange={() => setShowAccuracy(prev => !prev)}
-          disabled={!isCameraOn || isProcessing}
-        />
-        Show Accuracy
-      </label>
-
-
       {isProcessing && <p>Processing...</p>}
       <div style={{ position: 'relative' }}>
         {isCameraOn && (
