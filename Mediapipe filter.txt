@@ -8,7 +8,6 @@ import { Camera } from '@mediapipe/camera_utils';
 export default function HomePage() {
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showAccuracy, setShowAccuracy] = useState(false); // State for checkbox to show accuracy
   const [showLandmarksOnly, setShowLandmarksOnly] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -63,25 +62,8 @@ export default function HomePage() {
 
                     if (results.multiHandLandmarks) {
                       for (const landmarks of results.multiHandLandmarks) {
-                        drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 1, radius: 2 });
+                        drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 1 });
                       }
-
-                      // Show accuracy if checkbox is checked
-                      if (showAccuracy && results.multiHandedness && results.multiHandedness[0]) {
-                        const confidenceScore = results.multiHandedness[0].score;
-                        const confidence = confidenceScore !== undefined ? Math.round(confidenceScore * 100) : 0;
-                        const accuracyText = `Confidence: ${confidence}%`;
-                    
-                        canvasCtx.font = "14px 'Roboto', sans-serif"; // Decreased font size
-                        canvasCtx.fillStyle = "red"; // Changed text color to red
-                        canvasCtx.textAlign = "left"; // Align text
-                        canvasCtx.textBaseline = "top"; // Align text baseline
-                    
-                        canvasCtx.fillText(accuracyText, 10, 10); // Position text on the canvas
-                    }
-                    
-
-
                     }
                     canvasCtx.restore();
                   }
@@ -140,7 +122,7 @@ export default function HomePage() {
     return () => {
       stopCamera();
     };
-  }, [isCameraOn, showLandmarksOnly, showAccuracy]);
+  }, [isCameraOn, showLandmarksOnly]);
 
   return (
     <div>
@@ -162,18 +144,6 @@ export default function HomePage() {
         />
         Show Landmarks Only
       </label>
-
-      <label>
-        <input
-          type="checkbox"
-          checked={showAccuracy}
-          onChange={() => setShowAccuracy(prev => !prev)}
-          disabled={!isCameraOn || isProcessing}
-        />
-        Show Accuracy
-      </label>
-
-
       {isProcessing && <p>Processing...</p>}
       <div style={{ position: 'relative' }}>
         {isCameraOn && (
