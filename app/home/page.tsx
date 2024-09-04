@@ -40,8 +40,8 @@ export default function HomePage() {
               hands.setOptions({
                 maxNumHands: 1,
                 modelComplexity: 0,
-                minDetectionConfidence: 0.8,
-                minTrackingConfidence: 0.8,
+                minDetectionConfidence: 10,
+                minTrackingConfidence: 10,
               });
 
               hands.onResults((results) => {
